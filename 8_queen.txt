@@ -1,0 +1,82 @@
+package maximum_score_queen;
+
+import java.io.FileInputStream;
+import java.util.Scanner;
+
+public class MaximumScore {
+	int k = 0;
+	int[][] board = new int[8][8];
+	int kq = 0;
+	int[][] visit = new int[8][8];
+	int[] dx = {-1, 0, 1, 1, 1, 0, -1, -1};
+	int[] dy = {-1, -1, -1, 0, 1, 1, 1, 0};
+
+	void init() {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				this.visit[i][j] = 0;
+			}
+		}
+	}
+
+	void back_track(int diem, int dem) {
+		if (dem == 8) {
+			if (diem > this.kq) {
+				this.kq = diem;
+			}
+			return;
+		}
+		for (int i = 0; i < 8; i++) {
+			if (this.visit[dem][i] == 0 && this.check_point(dem, i) == true) {
+				this.visit[dem][i] = 1;
+				this.back_track(diem + this.board[dem][i], dem + 1);
+				this.visit[dem][i] = 0;
+			}
+
+		}
+	}
+
+	Boolean check_point(int x, int y) {
+		for (int i = 0; i < 8; i++) {
+			int l = 1;
+			while (true) {
+				int nx = x + this.dx[i] * l;
+				int ny = y + this.dy[i] * l;
+				if (nx < 0 || nx > 7 || ny < 0 || ny > 7) {
+					break;
+				} else if (this.visit[nx][ny] == 1) {
+					return false;
+				}
+				l++;
+			}
+		}
+		return true;
+	}
+
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.setIn(new FileInputStream("src/maximum_score_queen/input.txt"));
+		Scanner sc = new Scanner(System.in);
+		int tc = sc.nextInt();
+		MaximumScore mc = new MaximumScore();
+		for (int t = 0; t < tc; t++) {
+			mc.k = sc.nextInt();
+			System.out.println("Case #" + (t + 1));
+			for (int bang = 0; bang < mc.k; bang++) {
+				mc.kq = 0;
+				mc.init();
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						mc.board[i][j] = sc.nextInt();
+					}
+				}
+				mc.back_track(0, 0);
+				System.out.println(mc.kq);
+			}
+		}
+
+		sc.close();
+
+	}
+
+}
