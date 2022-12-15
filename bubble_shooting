@@ -1,0 +1,77 @@
+package bubble_shooting;
+
+import java.io.FileInputStream;
+import java.util.Scanner;
+
+public class BubbleShooting {
+	int n;
+	int[] bubble;
+	int rs;
+	int[] visited;
+
+	void back_track(int count, int sum) {
+		if (count == this.n) {
+			if (sum > this.rs) {
+				this.rs = sum;
+			}
+			return;
+		}
+		for (int i = 0; i < this.n; i++) {
+			if (this.visited[i] == 0) {
+				this.visited[i] = 1;
+				this.back_track(count + 1, sum + shoot(i));
+				this.visited[i] = 0;
+			}
+		}
+	}
+
+	int shoot(int index) {
+		int a = 0;
+		int b = 0;
+		for (int i = index - 1; i >= 0; i--) {
+			if (this.visited[i] == 0) {
+				a = this.bubble[i];
+				break;
+			}
+		}
+		for (int i = index + 1; i < this.n; i++) {
+			if (this.visited[i] == 0) {
+				b = this.bubble[i];
+				break;
+			}
+		}
+		if (a == 0 && b == 0)
+			return this.bubble[index];
+		else if (a == 0)
+			return b;
+		else if (b == 0)
+			return a;
+		else
+			return a * b;
+	}
+
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.setIn(new FileInputStream("src/bubble_shooting/input.txt"));
+		Scanner sc = new Scanner(System.in);
+		BubbleShooting bs = new BubbleShooting();
+		int tc = sc.nextInt();
+		for (int t = 0; t < tc; t++) {
+			bs.n = sc.nextInt();
+			bs.rs = 0;
+			bs.bubble = new int[bs.n];
+			bs.visited = new int[bs.n];
+			System.out.println("#" + (t + 1));
+			for (int i = 0; i < bs.n; i++) {
+				bs.bubble[i] = sc.nextInt();
+//				System.out.print(bs.bubble[i] + " ");
+			}
+//			System.out.println();
+
+			bs.back_track(0, 0);
+			System.out.println(bs.rs);
+		}
+		sc.close();
+	}
+
+}
