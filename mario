@@ -1,0 +1,124 @@
+package mario;
+
+import java.io.FileInputStream;
+import java.util.Scanner;
+
+public class Mario {
+	static class Point {
+		int x, y;
+
+		Point(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+	static class Queue {
+		int front = 0, rear = 0;
+		Point[] queue = new Point[10000];
+
+		public void init() {
+			this.front = this.rear = 0;
+		}
+
+		public void en_queue(Point p) {
+			this.queue[rear] = p;
+			this.rear++;
+		}
+
+		public Point de_queue() {
+			Point tmp = this.queue[front];
+			this.front++;
+			return tmp;
+		}
+
+		public Point peek() {
+			return this.queue[front];
+		}
+
+		public Boolean is_empty() {
+			return this.front == this.rear;
+		}
+	}
+
+	int n, m;
+	int[][] map;
+	int[][] visited;
+	Queue q = new Queue();
+	int jump;
+	int start_x, start_y, end_x, end_y;
+	int[] dx = { -1, 0, 1, 0 };
+	int[] dy = { 0, -1, 0, 1 };
+	int check = 0;
+
+	void BFS(int pow) {
+		this.q.init();
+		this.q.en_queue(new Point(this.start_x, this.start_y));
+		while (!this.q.is_empty()) {
+			Point p = this.q.de_queue();
+			for (int i = 0; i < 4; i++) {
+				for (int step = 0; step <= pow; step++) {
+					int nx = p.x + step * this.dx[i];
+					int ny = p.y + this.dy[i];
+					if (this.valid_point(nx, ny) && this.visited[nx][ny] == 0
+							&& this.map[nx][ny] != 0) {
+						this.visited[nx][ny] = 1;
+						if (this.map[nx][ny] == 3) {
+							this.check = 1;
+							break;
+						}
+						this.q.en_queue(new Point(nx, ny));
+					}
+				}
+				if (this.check == 1) {
+					break;
+				}
+			}
+			if (this.check == 1) {
+				break;
+			}
+		}
+	}
+
+	Boolean valid_point(int x, int y) {
+		return (x >= 0 && x < this.n && y >= 0 && y < this.m);
+	}
+
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.setIn(new FileInputStream("src/mario/Input.txt"));
+		Scanner sc = new Scanner(System.in);
+		Mario mr = new Mario();
+		int tc = sc.nextInt();
+		for (int t = 0; t < tc; t++) {
+			mr.n = sc.nextInt();
+			mr.m = sc.nextInt();
+			mr.map = new int[mr.n][mr.m];
+			mr.jump = 1;
+			mr.check = 0;
+			for (int i = 0; i < mr.n; i++) {
+				for (int j = 0; j < mr.m; j++) {
+					mr.map[i][j] = sc.nextInt();
+					if (mr.map[i][j] == 2) {
+						mr.start_x = i;
+						mr.start_y = j;
+					}
+					if (mr.map[i][j] == 3) {
+						mr.end_x = i;
+						mr.end_y = j;
+					}
+				}
+			}
+			while (mr.check == 0) {
+				mr.visited = new int[mr.n][mr.m];
+				mr.BFS(mr.jump);
+				mr.jump++;
+			}
+			System.out.println("Case #" + (t+1));
+			System.out.println((mr.jump - 1));
+		}
+		sc.close();
+
+	}
+
+}
