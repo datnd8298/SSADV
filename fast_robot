@@ -1,0 +1,128 @@
+package fast_robot;
+
+import java.io.FileInputStream;
+import java.util.Scanner;
+
+public class FastRobot {
+	static class Point {
+		int x, y, step;
+
+		Point(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+	static class Queue {
+		int front = 0, rear = 0;
+		Point[] queue = new Point[10000000];
+
+		public void init() {
+			this.front = this.rear = 0;
+		}
+
+		public void en_queue(Point p) {
+			this.queue[rear] = p;
+			this.rear++;
+		}
+
+		public Point de_queue() {
+			Point tmp = this.queue[front];
+			this.front++;
+			return tmp;
+		}
+
+		public Boolean is_empty() {
+			return this.front == this.rear;
+		}
+	}
+
+	int n, m, start_x, start_y, end_x, end_y;
+	char[][] map;
+	int[][] visited;
+	int[][] direction;
+	Queue q = new Queue();
+	int[] dx = { 0, -1, 0, 1, 0 };// duoi len, phai sang, tren xuong, trai sang
+	int[] dy = { 0, 0, -1, 0, 1 };
+	int check = 0;
+
+	void BFS() {
+		this.q.init();
+		Point p = new Point(this.start_x, this.start_y);
+		q.en_queue(p);
+		this.visited[p.x][p.y] = -1;
+		while (!this.q.is_empty()) {
+			p = this.q.de_queue();
+			if (p.x == this.end_x && p.y == this.end_y) {
+				this.check = 1;
+			}
+			for (int i = 1; i <= 4; i++) {
+				int nx = p.x + this.dx[i];
+				int ny = p.y + this.dy[i];
+				if (this.valid_point(nx, ny) && this.visited[nx][ny] != 0) {
+					if (this.visited[p.x][p.y] == -1) {
+						this.visited[nx][ny] = 1;
+						this.direction[nx][ny] = i;
+						this.q.en_queue(new Point(nx, ny));
+					} else {
+						if (this.direction[p.x][p.y] == i
+								&& this.visited[p.x][p.y] < this.visited[nx][ny]) {
+							this.direction[nx][ny] = i;
+							this.visited[nx][ny] = this.visited[p.x][p.y];
+							this.q.en_queue(new Point(nx, ny));
+						} else if (this.direction[p.x][p.y] != i
+								&& (this.visited[p.x][p.y] + 1) <= this.visited[nx][ny]) {
+							this.direction[nx][ny] = i;
+							this.visited[nx][ny] = this.visited[p.x][p.y] + 1;
+							this.q.en_queue(new Point(nx, ny));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	Boolean valid_point(int x, int y) {
+		return (x <= this.n && x > 0 && y > 0 && y <= this.m);
+	}
+
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.setIn(new FileInputStream("src/fast_robot/input.txt"));
+		Scanner sc = new Scanner(System.in);
+		int tc = sc.nextInt();
+		FastRobot fr = new FastRobot();
+		for (int t = 0; t < tc; t++) {
+			fr.check = 0;
+			fr.m = sc.nextInt();
+			fr.n = sc.nextInt();
+			fr.start_y = sc.nextInt();
+			fr.start_x = sc.nextInt();
+			fr.end_y = sc.nextInt();
+			fr.end_x = sc.nextInt();
+			fr.map = new char[fr.n + 1][fr.m + 1];
+			fr.visited = new int[fr.n + 1][fr.m + 1];
+			fr.direction = new int[fr.n + 1][fr.m + 1];
+
+			for (int i = 1; i <= fr.n; i++) {
+				String tmp = sc.next();
+				fr.map[i] = tmp.toCharArray();
+				for (int j = 1; j <= fr.m; j++) {
+					if (fr.map[i][j - 1] == '0') {
+						fr.visited[i][j] = Integer.MAX_VALUE;
+					}
+				}
+			}
+
+			fr.BFS();
+			if (fr.check == 0) {
+				System.out.println(-1);
+			} else {
+				System.out.println(fr.visited[fr.end_x][fr.end_y] - 1);
+			}
+		}
+		sc.close();
+
+	}
+
+}
