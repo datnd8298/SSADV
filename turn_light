@@ -1,0 +1,83 @@
+package electric_eco;
+
+import java.io.FileInputStream;
+import java.util.Scanner;
+
+public class ElectricEco {
+	int light, key;
+	int[] list;
+	int[][] relation;
+	int[] visited;
+	int rs = 0;
+
+	void back_track(int pos, int count, int kq) {
+		if (count >= 3) {
+			if (this.rs < kq) {
+				this.rs = kq;
+			}
+			return;
+		}
+		if (this.rs < kq) {
+			this.rs = kq;
+		}
+		for (int i = pos; i <= this.key; i++) {
+			if (this.visited[i] == 0) {
+				this.visited[i] = 1;
+				this.turn_light(i);
+				this.back_track(i + 1, count + 1, this.off_light());
+				this.visited[i] = 0;
+				this.turn_light(i);
+			}
+		}
+	}
+
+	int off_light() {
+		int count = 0;
+		for (int i = 1; i <= this.light; i++) {
+			if (this.list[i] == 0) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	void turn_light(int k) {
+		for (int i = 1; i <= this.light; i++) {
+			if (this.relation[k][i] == 1) {
+				this.list[i] = (this.list[i] == 0 ? 1 : 0);
+			}
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.setIn(new FileInputStream("src/electric_eco/input.txt"));
+		Scanner sc = new Scanner(System.in);
+		ElectricEco ee = new ElectricEco();
+		int tc = sc.nextInt();
+		for (int t = 0; t < tc; t++) {
+			ee.light = sc.nextInt();
+			ee.key = sc.nextInt();
+			ee.list = new int[ee.light + 1];
+			ee.relation = new int[ee.key + 1][ee.light + 1];
+			ee.visited = new int[ee.key + 1];
+			for (int i = 1; i <= ee.light; i++) {
+				ee.list[i] = sc.nextInt();
+			}
+			for (int i = 1; i <= ee.key; i++) {
+				ee.relation[i][i] = 1;
+				for (int j = 1; j <= ee.light; j++) {
+					if (i + j * (i + 1) <= ee.light) {
+						ee.relation[i][i + j * (i + 1)] = 1;
+					}
+				}
+			}
+			ee.rs = ee.off_light();
+			ee.back_track(1, 1, ee.rs);
+			System.out.println("#" + (t + 1) + " " + ee.rs);
+		}
+		sc.close();
+
+	}
+
+}
