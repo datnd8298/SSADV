@@ -1,0 +1,92 @@
+package zero_expr;
+
+import java.io.FileInputStream;
+import java.util.Scanner;
+
+public class ZeroExpr {
+	int n;
+	String[] expr;
+	int rs;
+
+	void back_track(int count) {
+		if (count == this.n - 1) {
+			int count_tmp = 0;
+			for (int i = 1; i <= 2 * this.n; i++) {
+				if (this.expr[i].compareTo("") == 0) {
+					count_tmp++;
+					for (int j = i; j < 2 * this.n; j++) {
+						this.expr[j] = this.expr[j + 1];
+					}
+				}
+			}
+			for (int i = 2 * this.n; i > 2 * this.n - count_tmp; i--) {
+				this.expr[i] = "";
+			}
+			if (this.measure(this.expr) == 0) {
+				this.rs++;
+			}
+			return;
+		}
+		for (int i = 0; i < 3; i++) {
+			if (i == 0) {
+				this.expr[count * 2] = "+";
+				this.back_track(count + 1);
+				 this.expr[count*2] = "";
+			} else if (i == 1) {
+				this.expr[count * 2] = "-";
+				this.back_track(count + 1);
+				 this.expr[count] = "";
+			} else {
+				this.back_track(count + 1);
+//				 this.expr[count] = "";
+			}
+		}
+	}
+
+	int measure(String[] expr) {
+		int sum = 0;
+		int dau = 1;
+		int tmp = 0;
+		int index = 1;
+		while (expr[index].compareTo("") != 0) {
+			if (expr[index].compareTo("+") == 0) {
+				sum += dau * tmp;
+				tmp = 0;
+				dau = 1;
+			} else if (expr[index].compareTo("-") == 0) {
+				sum += dau * tmp;
+				tmp = 0;
+				dau = -1;
+			} else {
+				int val = Integer.parseInt(expr[index]);
+				tmp = tmp * 10 + val;
+			}
+			index++;
+		}
+		return sum;
+	}
+
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.setIn(new FileInputStream("src/zero_expr/input.txt"));
+		Scanner sc = new Scanner(System.in);
+		ZeroExpr ze = new ZeroExpr();
+		int tc = sc.nextInt();
+		for (int t = 0; t < tc; t++) {
+			ze.rs = 0;
+			ze.n = sc.nextInt();
+			ze.expr = new String[2 * ze.n + 1];
+			for (int i = 1; i <= 2*ze.n; i++) {
+				ze.expr[i] = "";
+			}
+			for (int i = 1; i <= 2*ze.n; i += 2) {
+				ze.expr[i] = String.valueOf(i);
+			}
+			ze.back_track(1);
+			System.out.println(ze.rs);
+		}
+		sc.close();
+
+	}
+
+}
