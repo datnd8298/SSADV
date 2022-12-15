@@ -1,0 +1,103 @@
+package turn_over;
+
+import java.io.FileInputStream;
+import java.util.Scanner;
+
+public class TurnOver {
+	int count = 0;
+	int[][] board = new int[4][4];
+	int[][] visit = new int[4][4];
+	int[] dx = { -1, 0, 1, 0 };
+	int[] dy = { 0, -1, 0, 1 };
+
+	Boolean finished() {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (this.board[i][j] != this.board[i][j + 1]
+						|| this.board[i][j] != this.board[i + 1][j]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	void turn_light(int x, int y) {
+		if (this.board[x][y] == 0) {
+			this.board[x][y] = 1;
+		} else {
+			this.board[x][y] = 0;
+		}
+		for (int i = 0; i < 4; i++) {
+			int nx = x + dx[i];
+			int ny = y + dy[i];
+			if (nx >= 0 && nx < 4 && ny >= 0 && ny < 4) {
+				switch (this.board[nx][ny]) {
+				case 0:
+					this.board[nx][ny] = 1;
+					break;
+				case 1:
+					this.board[nx][ny] = 0;
+					break;
+				}
+			}
+		}
+	}
+
+	void back_track(int pos, int dem) {
+		if (this.finished()) {
+			if (dem < this.count) {
+				this.count = dem;
+			}
+			return;
+		}
+		if (pos == 16 || dem > this.count) {
+			return;
+		}
+		int row = pos / 4;
+		int col = pos % 4;
+		for (int i = 0; i < 2; i++) {
+			if (i == 0) {
+				this.back_track(pos + 1, dem);
+			} else {
+				if (this.visit[row][col] == 0) {
+					this.visit[row][col] = 1;
+					this.turn_light(row, col);
+					this.back_track(pos + 1, dem + 1);
+					this.turn_light(row, col);
+					this.visit[row][col] = 0;
+				}
+			}
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.setIn(new FileInputStream("src/turn_over/input.txt"));
+		Scanner sc = new Scanner(System.in);
+		int tc = sc.nextInt();
+		TurnOver to = new TurnOver();
+		for (int t = 0; t < tc; t++) {
+			to.count = 10000;
+			for (int i = 0; i < 4; i++) {
+				String tmp = sc.next();
+				for (int j = 0; j < 4; j++) {
+					if (tmp.charAt(j) == 'w') {
+						to.board[i][j] = 0;
+					} else {
+						to.board[i][j] = 1;
+					}
+				}
+			}
+			to.back_track(0, 0);
+			System.out.println("Case #" + (t + 1));
+			if (to.count == 10000) {
+				System.out.println("impossible");				
+			} else {
+				System.out.println(to.count);
+			}
+		}
+		sc.close();
+
+	}
+}
