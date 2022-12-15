@@ -1,0 +1,97 @@
+package frog_jump;
+
+import java.io.FileInputStream;
+import java.util.Scanner;
+
+public class FrogJump {
+	int n = 0;
+	int[] x = new int[201], y = new int[201], r = new int[201];
+	int[] visited = new int[201];
+	int[] distance = new int[201];
+	int[][] relation = new int[201][201];
+	int[] u = new int[201];
+
+	public int measure(int x1, int y1, int r1, int x2, int y2, int r2) {
+		int kc = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+		if ((40 + r1 + r2) * (40 + r1 + r2) >= kc) {
+			return 1;
+		} else if ((90 + r1 + r2) * (90 + r1 + r2) >= kc) {
+			return 1000;
+		} else {
+			return 1000000;
+		}
+	}
+	
+	void init() {
+		for (int i = 1; i <= this.n; i++) {
+			this.visited[i] = 0;
+			this.distance[i] = Integer.MAX_VALUE;
+		}
+	}
+	
+	void dijkstra () {
+		this.u[1] = 1;
+		this.visited[1] = 1;
+		int count = 1;
+		while (count < this.n) {
+			int min = Integer.MAX_VALUE;
+			int index = 0;
+			for (int i = 1; i <= this.n; i++) {
+				if (this.visited[i] == 0) {
+					if (this.distance[i] < min) {
+						min = this.distance[i];
+						index = i;
+					}
+				}
+			}
+			
+			this.u[count] = index;
+			this.visited[index] = 1;
+			for (int i = 1; i <= this.n; i++) {
+				if(this.relation[index][i] != 0 && this.distance[index] + this.relation[index][i] < this.distance[i]) {
+					this.distance[i] = this.distance[index] + this.relation[index][i];
+				}
+			}
+			count++;
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.setIn(new FileInputStream("src/frog_jump/input.txt"));
+		Scanner sc = new Scanner(System.in);
+		int tc = sc.nextInt();
+		FrogJump fj = new FrogJump();
+		for (int t = 0; t < tc; t++) {
+			fj.n = sc.nextInt();
+			fj.init();
+			for (int i = 1; i <= fj.n; i++) {
+				fj.x[i] = sc.nextInt();
+				fj.y[i] = sc.nextInt();
+				fj.r[i] = sc.nextInt();
+			}
+
+			for (int i = 1; i <= fj.n; i++) {
+				for (int j = 1; j <= fj.n; j++) {
+					fj.relation[i][j] = fj.measure(fj.x[i], fj.y[i], fj.r[i], fj.x[j], fj.y[j], fj.r[j]);
+				}
+			}
+			
+			for (int i = 1; i <= fj.n; i++) {
+				if (fj.relation[1][i] != 0) {
+					fj.distance[i] = fj.relation[1][i];
+				}
+			}
+			fj.dijkstra();
+			if (fj.distance[fj.n] >= 1000000) {
+				System.out.println(-1);
+			} else {
+				System.out.println(fj.distance[fj.n] / 1000 + " " + fj.distance[fj.n] % 1000);
+			}
+
+		}
+		sc.close();
+
+	}
+
+}
